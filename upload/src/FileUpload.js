@@ -6,11 +6,51 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import ComputerIcon from '@mui/icons-material/Computer';
-import Checkbox from '@mui/material/Checkbox';
+import { DataGrid } from '@mui/x-data-grid';
+import InfoIcon from '@mui/icons-material/Info';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const API_URL = "https://xm2fv4k5r5.execute-api.us-east-2.amazonaws.com/uploadTryTwo";
+
+
+const styles = {
+  header: {
+    display:'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center'
+  },
+  icon: {
+    display:'flex',
+    alignItems: 'center',
+    marginLeft: '20px',
+    
+    
+  }
+}
+
+const columns = [
+
+  { field: 'documentName', headerName: 'Document Name', width: 130 },
+  { field: 'schoolArea', headerName: 'School Area', width: 130 },
+  { field: 'subject', headerName: 'Subject', width: 130 },
+  { field: 'documentType', headerName: 'Document Type', width: 130 },
+  { field: 'remove', headerName: 'Remove', width: 130 },
+  
+];
+
+const rows = [
+  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
+  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
+  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
+  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
+  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
+  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
+  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
+  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
+  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+];
 
 export default class FileUpload extends Component {
   
@@ -20,7 +60,7 @@ export default class FileUpload extends Component {
         super(props);
        
         this.state = {
-            fileToUpload: undefined,
+            fileToUpload: [],
             uploadSuccess: undefined,
             error: undefined 
         }
@@ -92,86 +132,76 @@ export default class FileUpload extends Component {
     }
 
   render() {
+    console.log({data: this.state.fileToUpload})
+    const forMattedData = this.state.fileToUpload.map((item, index)=>{
+      return {id:index, documentName: item.name} 
+    })
+
     return (
         <>
-      <div className={"fileUploadCont"}>
-        <div className={"header"}>
-          File Upload to S3 with Lambda, And React axios Application
-        </div>
+      <div  style={styles.header}>
+     
+          <div style={styles.icon} >
+            UPLOAD NEW DOCUMENT
+            <InfoIcon/>
+          </div>
+          
+       
         <div>
-        <IconButton aria-label="CloseIcon" onClick={()=> this.CloseModal()}  >
+        <IconButton aria-label="CloseIcon" onClick={()=> this.CloseModal()}>
           <CloseIcon />
         </IconButton>
         </div>
-        <div>
-          <form>
-            <div className="form-group">
-              {/* <input
-                type="file"
-                className="form-control-file"
-                id="fileUpload"
-                multiple
-                onChange={(e) => {
-                    console.log("Hi there Dude")
-                  this.setState({
-                    fileToUpload: e.target.files,
-                  }, this.myTablefunc);
-             
-                }}
-
-              /> */}
-              <Button
-              startIcon={<ComputerIcon />}
-              variant="outlined"
-              component="label"
-              >
-              Browse Computer
-              <input
-                id="fileUpload"
-                multiple
-                onChange={(e) => {
-                  console.log("Hi there Dude")
-                this.setState({
-                  fileToUpload: e.target.files,
-                }, this.myTablefunc);
-           
-              }}
-                type="file"
-                hidden
-              />
-              </Button>
-             
-              <div>
-                <span>
-                  {this.state.uploadSuccess ? "File Upload Successfully" : ""}
-                </span>
-              </div>
-            </div>
-          </form>
-        </div>
       </div>
-
-<h2>HTML Table</h2>
-
-<table id="myTable">
-  <tr>
-    <th><input class="checkboxRow" type="checkbox"  onChange={this.checkAllBoxes} /></th>
-    <th>Company</th>
-    <th>Contact</th>
-    <th>Country</th>
-    
-  </tr>
-</table>
-<button
-  type="button"
-  className="btn btn-light"
-  onClick={(e) => {
-    this.uploadFile();
-  }}
->
-  Upload your file
-</button>
+      <div>
+      <div> 
+          <Button startIcon={<ComputerIcon />} variant="outlined" component="label">
+          Browse Computer
+          <input id="fileUpload" multiple onChange={(e) => {
+              console.log("files value",e.target.files)
+              let files = []
+            Array.from(e.target.files).forEach(file=>{
+                console.log({file})
+                files.push(file)
+              })
+            this.setState({
+              fileToUpload: files,
+            }, this.myTablefunc);
+        
+          }}
+            type="file"
+            hidden
+          />
+          </Button>
+          <div>
+            <span>
+              {this.state.uploadSuccess ? "File Upload Successfully" : ""}
+            </span>
+          </div>
+      </div>       
+      </div>
+      <br/>
+      <div style={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={forMattedData}
+        columns={columns}
+        hideFooter
+        // pageSize={5}
+        // rowsPerPageOptions={[0]}
+        checkboxSelection
+      />
+    </div>
+    <button
+          type="button"
+          className="btn btn-light"
+          onClick={(e) => {
+            this.uploadFile();
+          }}
+        >
+          Upload your file
+        </button>
 </>
     );
   }
 }
+
